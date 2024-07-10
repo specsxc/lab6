@@ -208,7 +208,6 @@ if __name__ == "__main__":
             "Brak argumentów! "
             "Proszę podać ścieżki do plików wejściowych i wyjściowych."
         )
-    input("Naciśnij enter aby wyjść...")
 
 
 class ConverterApp(QMainWindow):
