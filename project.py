@@ -4,6 +4,7 @@ import json
 import yaml
 from collections import OrderedDict
 import xml.etree.ElementTree as ET
+import xml.dom.minidom as minidom
 
 
 def parse_arg():
@@ -90,26 +91,30 @@ def load_xml(file_path):
 def save_xml(data, file_path):
     try:
         root = dict_to_xml("root", data)
-        tree = ET.ElementTree(root)
-        tree.write(file_path, encoding="utf-8", xml_declaration=True)
+        xml_str = ET.tostring(root, encoding="utf-8")
+        parsed_str = minidom.parseString(xml_str)
+        pretty_xml_as_string = parsed_str.toprettyxml(indent="  ", encoding="utf-8")
+
+        with open(file_path, "wb") as file:
+            file.write(pretty_xml_as_string)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku XML: {e}")
         log_error(e)
         sys.exit(1)
 
 
-def dict_to_xml(tag, d):
+def dict_to_xml(tag, value):
     elem = ET.Element(tag)
-    for key, val in d.items():
-        child = ET.Element(key)
-        if isinstance(val, dict):
-            child.extend(dict_to_xml(key, val))
-        elif isinstance(val, list):
-            for item in val:
-                child.append(dict_to_xml(key, item))
-        else:
-            child.text = str(val)
-        elem.append(child)
+    if isinstance(value, dict):
+        for key, val in value.items():
+            child = dict_to_xml(key, val)
+            elem.append(child)
+    elif isinstance(value, list):
+        for item in value:
+            child = dict_to_xml(tag, item)
+            elem.append(child)
+    else:
+        elem.text = str(value)
     return elem
 
 
@@ -130,6 +135,11 @@ def xml_to_dict(element):
 def log_error(e):
     with open("error_log.txt", "a") as log_file:
         log_file.write(str(e) + "\n")
+
+
+yaml.add_representer(
+    OrderedDict, lambda dumper, data: dumper.represent_dict(data.items())
+)
 
 
 if __name__ == "__main__":
