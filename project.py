@@ -37,7 +37,7 @@ def load_json(file_path):
             data = json.load(file)
         return data
     except json.JSONDecodeError as e:
-        print(f"Error loading JSON file: {e}")
+        print(f"Błąd wczytywania pliku JSON: {e}")
         sys.exit(1)
 
 
@@ -46,7 +46,7 @@ def save_json(data, file_path):
         with open(file_path, "w") as file:
             json.dump(data, file, indent=4)
     except Exception as e:
-        print(f"Error saving JSON file: {e}")
+        print(f"Błąd zapisywania pliku JSON: {e}")
         sys.exit(1)
 
 
@@ -61,4 +61,4 @@ if __name__ == "__main__":
     print(f"Wczytano dane: {data}")
     if output_format == ".json":
         save_json(data, output_file)
-    print(f"Pomyślnie przekonwertowano dane i zapisane do {output_file}")
+    print(f"Pomyślnie przekonwertowano dane zapisane do {output_file}")
