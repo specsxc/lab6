@@ -1,0 +1,4 @@
+pyinstaller==6.9.0
+PyQt5==5.15.10
+PyYAML==6.0.1
+xmltodict==0.13.0
