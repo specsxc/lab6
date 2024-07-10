@@ -90,39 +90,55 @@ def save_xml(data, file_path):
         sys.exit(1)
 
 
+def log_error(e):
+    with open("error_log.txt", "a") as log_file:
+        log_file.write(str(e) + "\n")
+
+
 if __name__ == "__main__":
-    input_file, output_file, input_format, output_format = parse_arguments()
-    print(
-        f"Konwertowanie {input_file} ({input_format}) ",
-        f"do {output_file} ({output_format}) rozpoczęte",
-    )
+    if len(sys.argv) > 1:
+        try:
+            input_file, output_file, input_format, output_format = parse_arguments()
+            print(
+                f"Konwertowanie {input_file} ({input_format}) ",
+                f"do {output_file} ({output_format}) rozpoczęte",
+            )
 
-    if input_format == ".json":
-        data = load_json(input_file)
-        print(f"Wczytano dane: {data}")
-    elif input_format in [".yaml", ".yml"]:
-        data = load_yaml(input_file)
-        print(f"Wczytano dane: {data}")
-    elif input_format == ".xml":
-        data = load_xml(input_file)
-        print(f"Wczytano dane: {data}")
+            if input_format == ".json":
+                data = load_json(input_file)
+                print(f"Wczytano dane: {data}")
+            elif input_format in [".yaml", ".yml"]:
+                data = load_yaml(input_file)
+                print(f"Wczytano dane: {data}")
+            elif input_format == ".xml":
+                data = load_xml(input_file)
+                print(f"Wczytano dane: {data}")
 
-    if output_format == ".json":
-        save_json(data, output_file)
+            if output_format == ".json":
+                save_json(data, output_file)
+                print(
+                    "Dane zostały pomyślnie przekonwertowane ",
+                    f"i zapisane do {output_file}",
+                )
+            elif output_format in [".yaml", ".yml"]:
+                save_yaml(data, output_file)
+                print(
+                    "Dane zostały pomyślnie przekonwertowane ",
+                    f"i zapisane do {output_file}",
+                )
+            elif output_format == ".xml":
+                save_xml(data, output_file)
+                print(
+                    "Dane zostały pomyślnie przekonwertowane ",
+                    f"i zapisane do {output_file}",
+                )
+            print("Konwertowanie plików zakończone")
+        except Exception as e:
+            log_error(e)
+            print(f"Wystąpił błąd: {e}")
+    else:
         print(
-            "Dane zostały pomyślnie przekonwertowane ",
-            f"i zapisane do {output_file}",
+            "Brak argumentów! "
+            "Proszę podać ścieżki do plików wejściowych i wyjściowych."
         )
-    elif output_format in [".yaml", ".yml"]:
-        save_yaml(data, output_file)
-        print(
-            "Dane zostały pomyślnie przekonwertowane ",
-            f"i zapisane do {output_file}",
-        )
-    elif output_format == ".xml":
-        save_xml(data, output_file)
-        print(
-            "Dane zostały pomyślnie przekonwertowane ",
-            f"i zapisane do {output_file}",
-        )
-print("Konwertowanie plików zakończone")
+    input("Naciśnij enter aby wyjść...")
