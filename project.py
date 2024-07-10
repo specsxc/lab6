@@ -35,7 +35,7 @@ def parse_arguments():
 
 def load_json(file_path):
     try:
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
         return data
     except json.JSONDecodeError as e:
@@ -45,8 +45,8 @@ def load_json(file_path):
 
 def save_json(data, file_path):
     try:
-        with open(file_path, "w") as file:
-            json.dump(data, file, indent=4)
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku JSON: {e}")
         sys.exit(1)
@@ -54,7 +54,7 @@ def save_json(data, file_path):
 
 def load_yaml(file_path):
     try:
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             data = yaml.safe_load(file)
         return data
     except yaml.YAMLError as e:
@@ -64,8 +64,8 @@ def load_yaml(file_path):
 
 def save_yaml(data, file_path):
     try:
-        with open(file_path, "w") as file:
-            yaml.safe_dump(data, file)
+        with open(file_path, "w", encoding="utf-8") as file:
+            yaml.safe_dump(data, file, allow_unicode=True)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku YAML: {e}")
         sys.exit(1)
@@ -84,7 +84,7 @@ def load_xml(file_path):
 def save_xml(data, file_path):
     try:
         tree = ET.ElementTree(data)
-        tree.write(file_path)
+        tree.write(file_path, encoding="utf-8", xml_declaration=True)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku XML: {e}")
         sys.exit(1)
