@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import yaml
+import xml.etree.ElementTree as ET
 
 
 def parse_arguments():
@@ -38,7 +39,7 @@ def load_json(file_path):
             data = json.load(file)
         return data
     except json.JSONDecodeError as e:
-        print(f"Błąd wczytywania pliku JSON: {e}")
+        print(f"Błąd podczas wczytywania pliku JSON: {e}")
         sys.exit(1)
 
 
@@ -47,7 +48,7 @@ def save_json(data, file_path):
         with open(file_path, "w") as file:
             json.dump(data, file, indent=4)
     except Exception as e:
-        print(f"Błąd zapisywania pliku JSON: {e}")
+        print(f"Błąd podczas zapisywania pliku JSON: {e}")
         sys.exit(1)
 
 
@@ -57,7 +58,7 @@ def load_yaml(file_path):
             data = yaml.safe_load(file)
         return data
     except yaml.YAMLError as e:
-        print(f"Błąd wczytywania pliku YAML: {e}")
+        print(f"Błąd podczas wczytywania pliku YAML: {e}")
         sys.exit(1)
 
 
@@ -66,7 +67,26 @@ def save_yaml(data, file_path):
         with open(file_path, "w") as file:
             yaml.safe_dump(data, file)
     except Exception as e:
-        print(f"Błąd zapisywania pliku YAML: {e}")
+        print(f"Błąd podczas zapisywania pliku YAML: {e}")
+        sys.exit(1)
+
+
+def load_xml(file_path):
+    try:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        return root
+    except ET.ParseError as e:
+        print(f"Błąd podczas wczytywania pliku XML: {e}")
+        sys.exit(1)
+
+
+def save_xml(data, file_path):
+    try:
+        tree = ET.ElementTree(data)
+        tree.write(file_path)
+    except Exception as e:
+        print(f"Błąd podczas zapisywania pliku XML: {e}")
         sys.exit(1)
 
 
@@ -83,6 +103,9 @@ if __name__ == "__main__":
     elif input_format in [".yaml", ".yml"]:
         data = load_yaml(input_file)
         print(f"Wczytano dane: {data}")
+    elif input_format == ".xml":
+        data = load_xml(input_file)
+        print(f"Wczytano dane: {data}")
 
     if output_format == ".json":
         save_json(data, output_file)
@@ -92,6 +115,12 @@ if __name__ == "__main__":
         )
     elif output_format in [".yaml", ".yml"]:
         save_yaml(data, output_file)
+        print(
+            "Dane zostały pomyślnie przekonwertowane ",
+            f"i zapisane do {output_file}",
+        )
+    elif output_format == ".xml":
+        save_xml(data, output_file)
         print(
             "Dane zostały pomyślnie przekonwertowane ",
             f"i zapisane do {output_file}",
