@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import yaml
 
 
 def parse_arguments():
@@ -50,15 +51,49 @@ def save_json(data, file_path):
         sys.exit(1)
 
 
+def load_yaml(file_path):
+    try:
+        with open(file_path, "r") as file:
+            data = yaml.safe_load(file)
+        return data
+    except yaml.YAMLError as e:
+        print(f"Błąd wczytywania pliku YAML: {e}")
+        sys.exit(1)
+
+
+def save_yaml(data, file_path):
+    try:
+        with open(file_path, "w") as file:
+            yaml.safe_dump(data, file)
+    except Exception as e:
+        print(f"Błąd zapisywania pliku YAML: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     input_file, output_file, input_format, output_format = parse_arguments()
     print(
         f"Konwertowanie {input_file} ({input_format}) ",
-        f"do {output_file} ({output_format})",
+        f"do {output_file} ({output_format}) rozpoczęte",
     )
+
     if input_format == ".json":
         data = load_json(input_file)
-    print(f"Wczytano dane: {data}")
+        print(f"Wczytano dane: {data}")
+    elif input_format in [".yaml", ".yml"]:
+        data = load_yaml(input_file)
+        print(f"Wczytano dane: {data}")
+
     if output_format == ".json":
         save_json(data, output_file)
-    print(f"Pomyślnie przekonwertowano dane zapisane do {output_file}")
+        print(
+            "Dane zostały pomyślnie przekonwertowane ",
+            f"i zapisane do {output_file}",
+        )
+    elif output_format in [".yaml", ".yml"]:
+        save_yaml(data, output_file)
+        print(
+            "Dane zostały pomyślnie przekonwertowane ",
+            f"i zapisane do {output_file}",
+        )
+print("Konwertowanie plików zakończone")
