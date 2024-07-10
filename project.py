@@ -70,7 +70,7 @@ def load_yaml(file_path):
 def save_yaml(data, file_path):
     try:
         with open(file_path, "w", encoding="utf-8") as file:
-            yaml.safe_dump(
+            yaml.dump(
                 data,
                 file,
                 allow_unicode=True,
