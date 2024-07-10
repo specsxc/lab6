@@ -41,6 +41,15 @@ def load_json(file_path):
         sys.exit(1)
 
 
+def save_json(data, file_path):
+    try:
+        with open(file_path, "w") as file:
+            json.dump(data, file, indent=4)
+    except Exception as e:
+        print(f"Error saving JSON file: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     input_file, output_file, input_format, output_format = parse_arguments()
     print(
@@ -50,3 +59,6 @@ if __name__ == "__main__":
     if input_format == ".json":
         data = load_json(input_file)
     print(f"Wczytano dane: {data}")
+    if output_format == ".json":
+        save_json(data, output_file)
+    print(f"Pomyślnie przekonwertowano dane i zapisane do {output_file}")
