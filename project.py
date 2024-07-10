@@ -2,10 +2,11 @@ import sys
 import os
 import json
 import yaml
+from collections import OrderedDict
 import xml.etree.ElementTree as ET
 
 
-def parse_arguments():
+def parse_arg():
     if len(sys.argv) != 3:
         print("Użycie: program.exe pathFile1.x pathFile2.y")
         sys.exit(1)
@@ -40,6 +41,7 @@ def load_json(file_path):
         return data
     except json.JSONDecodeError as e:
         print(f"Błąd podczas wczytywania pliku JSON: {e}")
+        log_error(e)
         sys.exit(1)
 
 
@@ -49,6 +51,7 @@ def save_json(data, file_path):
             json.dump(data, file, indent=4, ensure_ascii=False)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku JSON: {e}")
+        log_error(e)
         sys.exit(1)
 
 
@@ -59,6 +62,7 @@ def load_yaml(file_path):
         return data
     except yaml.YAMLError as e:
         print(f"Błąd podczas wczytywania pliku YAML: {e}")
+        log_error(e)
         sys.exit(1)
 
 
@@ -68,6 +72,7 @@ def save_yaml(data, file_path):
             yaml.safe_dump(data, file, allow_unicode=True)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku YAML: {e}")
+        log_error(e)
         sys.exit(1)
 
 
@@ -78,16 +83,48 @@ def load_xml(file_path):
         return root
     except ET.ParseError as e:
         print(f"Błąd podczas wczytywania pliku XML: {e}")
+        log_error(e)
         sys.exit(1)
 
 
 def save_xml(data, file_path):
     try:
-        tree = ET.ElementTree(data)
+        root = dict_to_xml("root", data)
+        tree = ET.ElementTree(root)
         tree.write(file_path, encoding="utf-8", xml_declaration=True)
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku XML: {e}")
+        log_error(e)
         sys.exit(1)
+
+
+def dict_to_xml(tag, d):
+    elem = ET.Element(tag)
+    for key, val in d.items():
+        child = ET.Element(key)
+        if isinstance(val, dict):
+            child.extend(dict_to_xml(key, val))
+        elif isinstance(val, list):
+            for item in val:
+                child.append(dict_to_xml(key, item))
+        else:
+            child.text = str(val)
+        elem.append(child)
+    return elem
+
+
+def xml_to_dict(element):
+    if len(element) == 0:
+        return element.text
+    result = OrderedDict()
+    for child in element:
+        if child.tag not in result:
+            result[child.tag] = xml_to_dict(child)
+        else:
+            if not isinstance(result[child.tag], list):
+                result[child.tag] = [result[child.tag]]
+            result[child.tag].append(xml_to_dict(child))
+    return result
 
 
 def log_error(e):
@@ -98,7 +135,7 @@ def log_error(e):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         try:
-            input_file, output_file, input_format, output_format = parse_arguments()
+            input_file, output_file, input_format, output_format = parse_arg()
             print(
                 f"Konwertowanie {input_file} ({input_format}) ",
                 f"do {output_file} ({output_format}) rozpoczęte",
@@ -111,7 +148,7 @@ if __name__ == "__main__":
                 data = load_yaml(input_file)
                 print(f"Wczytano dane: {data}")
             elif input_format == ".xml":
-                data = load_xml(input_file)
+                data = xml_to_dict(load_xml(input_file))
                 print(f"Wczytano dane: {data}")
 
             if output_format == ".json":
