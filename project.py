@@ -5,6 +5,15 @@ import yaml
 from collections import OrderedDict
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
+from PyQt5.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QFileDialog,
+    QPushButton,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 def parse_arg():
@@ -200,3 +209,110 @@ if __name__ == "__main__":
             "Proszę podać ścieżki do plików wejściowych i wyjściowych."
         )
     input("Naciśnij enter aby wyjść...")
+
+
+class ConverterApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Konwerter plików")
+        self.setGeometry(100, 100, 400, 200)
+
+        self.input_file = ""
+        self.output_file = ""
+
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        self.input_label = QLabel("Wybierz plik wejściowy:")
+        layout.addWidget(self.input_label)
+
+        self.input_button = QPushButton("Wybierz plik...")
+        self.input_button.clicked.connect(self.select_input_file)
+        layout.addWidget(self.input_button)
+
+        self.output_label = QLabel("Wybierz plik wyjściowy:")
+        layout.addWidget(self.output_label)
+
+        self.output_button = QPushButton("Wybierz plik...")
+        self.output_button.clicked.connect(self.select_output_file)
+        layout.addWidget(self.output_button)
+
+        self.convert_button = QPushButton("Konwertuj")
+        self.convert_button.clicked.connect(self.convert_files)
+        layout.addWidget(self.convert_button)
+
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+    def select_input_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Wybierz plik wejściowy",
+            "",
+            "All Files (*);;JSON Files (*.json);;",
+            "YAML Files (*.yaml *.yml);;XML Files (*.xml)",
+            options=options,
+        )
+        if file_path:
+            self.input_file = file_path
+            self.input_label.setText(
+                f"Wybrany plik wejściowy: {os.path.basename(file_path)}"
+            )
+
+    def select_output_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Wybierz plik wyjściowy",
+            "",
+            "All Files (*);;JSON Files (*.json);;",
+            "YAML Files (*.yaml *.yml);;XML Files (*.xml)",
+            options=options,
+        )
+        if file_path:
+            self.output_file = file_path
+            self.output_label.setText(
+                f"Wybrany plik wyjściowy: {os.path.basename(file_path)}"
+            )
+
+    def convert_files(self):
+        if not self.input_file or not self.output_file:
+            print("Proszę wybrać pliki wejściowe i wyjściowe.")
+            return
+
+        input_format = os.path.splitext(self.input_file)[1].lower()
+        output_format = os.path.splitext(self.output_file)[1].lower()
+
+        try:
+            if input_format == ".json":
+                data = load_json(self.input_file)
+            elif input_format in [".yaml", ".yml"]:
+                data = load_yaml(self.input_file)
+            elif input_format == ".xml":
+                data = load_xml(self.input_file)
+
+            if output_format == ".json":
+                save_json(data, self.output_file)
+            elif output_format in [".yaml", ".yml"]:
+                save_yaml(data, self.output_file)
+            elif output_format == ".xml":
+                save_xml(data, self.output_file)
+
+            print("Konwertowanie plików zakończone")
+        except Exception as e:
+            log_error(e)
+            print(f"Wystąpił błąd: {e}")
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    converter_app = ConverterApp()
+    converter_app.show()
+    sys.exit(app.exec_())
