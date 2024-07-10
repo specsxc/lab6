@@ -38,7 +38,7 @@ def parse_arg():
 def load_json(file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
+            data = json.load(file, object_pairs_hook=OrderedDict)
         return data
     except json.JSONDecodeError as e:
         print(f"Błąd podczas wczytywania pliku JSON: {e}")
@@ -70,7 +70,13 @@ def load_yaml(file_path):
 def save_yaml(data, file_path):
     try:
         with open(file_path, "w", encoding="utf-8") as file:
-            yaml.safe_dump(data, file, allow_unicode=True)
+            yaml.safe_dump(
+                data,
+                file,
+                allow_unicode=True,
+                default_flow_style=False,
+                sort_keys=False,
+            )
     except Exception as e:
         print(f"Błąd podczas zapisywania pliku YAML: {e}")
         log_error(e)
@@ -81,7 +87,7 @@ def load_xml(file_path):
     try:
         tree = ET.parse(file_path)
         root = tree.getroot()
-        return root
+        return xml_to_dict(root)
     except ET.ParseError as e:
         print(f"Błąd podczas wczytywania pliku XML: {e}")
         log_error(e)
@@ -93,7 +99,10 @@ def save_xml(data, file_path):
         root = dict_to_xml("root", data)
         xml_str = ET.tostring(root, encoding="utf-8")
         parsed_str = minidom.parseString(xml_str)
-        pretty_xml_as_string = parsed_str.toprettyxml(indent="  ", encoding="utf-8")
+        pretty_xml_as_string = parsed_str.toprettyxml(
+            indent="  ",
+            encoding="utf-8",
+        )
 
         with open(file_path, "wb") as file:
             file.write(pretty_xml_as_string)
@@ -133,13 +142,15 @@ def xml_to_dict(element):
 
 
 def log_error(e):
-    with open("error_log.txt", "a") as log_file:
+    with open("error_log.txt", "a", encoding="utf-8") as log_file:
         log_file.write(str(e) + "\n")
 
 
-yaml.add_representer(
-    OrderedDict, lambda dumper, data: dumper.represent_dict(data.items())
-)
+def represent_ordereddict(dumper, data):
+    return dumper.represent_dict(data.items())
+
+
+yaml.add_representer(OrderedDict, represent_ordereddict)
 
 
 if __name__ == "__main__":
@@ -158,7 +169,7 @@ if __name__ == "__main__":
                 data = load_yaml(input_file)
                 print(f"Wczytano dane: {data}")
             elif input_format == ".xml":
-                data = xml_to_dict(load_xml(input_file))
+                data = load_xml(input_file)
                 print(f"Wczytano dane: {data}")
 
             if output_format == ".json":
