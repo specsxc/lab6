@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <root>
+     <nazwa>Mój plik JSON</nazwa>
+     <autor>Jan Kowalski</autor>
+     <data>2024-07-10</data>
+     <dane>
+         <id>1</id>
+         <wartość1>wartość 1a</wartość1>
+         <wartość2>123</wartość2>
+     </dane>
+     <dane>
+         <id>2</id>
+         <wartość1>wartość 2a</wartość1>
+         <wartość2>456</wartość2>
+     </dane>
+ </root>

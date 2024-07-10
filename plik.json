@@ -1,0 +1,17 @@
+{
+  "nazwa": "Mój plik JSON",
+  "autor": "Jan Kowalski",
+  "data": "2024-07-10",
+  "dane": [
+    {
+      "id": 1,
+      "wartość1": "wartość 1a",
+      "wartość2": 123
+    },
+    {
+      "id": 2,
+      "wartość1": "wartość 2a",
+      "wartość2": 456
+    }
+  ]
+}
